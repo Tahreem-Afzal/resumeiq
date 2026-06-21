@@ -45,6 +45,8 @@ uploadZone.addEventListener('drop', (e) => {
   if (file) setFile(file);
 });
 resumeFileInput.addEventListener('change', () => {
+  // TEMPORARY DEBUG — remove once iOS issue is diagnosed
+  alert('Change event fired. Files: ' + resumeFileInput.files.length);
   if (resumeFileInput.files[0]) setFile(resumeFileInput.files[0]);
 });
 
