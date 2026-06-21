@@ -35,7 +35,10 @@ const resultsSection = document.getElementById('resultsSection');
 const backBtn = document.getElementById('backBtn');
 const jobDescriptionInput = document.getElementById('jobDescription');
 
-uploadZone.addEventListener('click', () => resumeFileInput.click());
+uploadZone.addEventListener('click', (e) => {
+  if (e.target.tagName === 'LABEL') return; // let the label handle it natively, avoid double-trigger on iOS
+  resumeFileInput.click();
+});
 uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
 uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
 uploadZone.addEventListener('drop', (e) => {
@@ -45,6 +48,8 @@ uploadZone.addEventListener('drop', (e) => {
   if (file) setFile(file);
 });
 resumeFileInput.addEventListener('change', () => {
+  // TEMPORARY DEBUG — remove once iOS issue is diagnosed
+  alert('Change event fired. Files: ' + resumeFileInput.files.length);
   if (resumeFileInput.files[0]) setFile(resumeFileInput.files[0]);
 });
 
