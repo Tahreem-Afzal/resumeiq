@@ -44,18 +44,30 @@
       display: flex;
       flex-direction: column;
       height: 100vh;
+      transition: transform 0.25s ease;
+      z-index: 100;
     }
 
     .sidebar-header {
       padding: 20px 16px 16px;
       border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sidebar-header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      margin-bottom: 16px;
     }
 
     .logo {
       display: flex;
       align-items: center;
       gap: 8px;
-      margin-bottom: 16px;
       text-decoration: none;
     }
 
@@ -69,6 +81,17 @@
 
     .logo-text { font-size: 16px; font-weight: 600; color: var(--text); }
     .logo-text span { color: var(--accent); }
+
+    .sidebar-close-btn {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 20px;
+      cursor: pointer;
+      padding: 4px 8px;
+      line-height: 1;
+    }
 
     .new-chat-btn {
       width: 100%;
@@ -148,6 +171,41 @@
     .status-label { font-weight: 500; }
     .status-preview { color: var(--muted); font-size: 11px; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
+    /* ── SIDEBAR OVERLAY (mobile only) ── */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 90;
+    }
+
+    /* ── MOBILE TOP BAR (mobile only) ── */
+    .mobile-topbar {
+      display: none;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .hamburger-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text);
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .mobile-topbar .logo-text { font-size: 15px; }
+
     /* ── MAIN ── */
     .main {
       flex: 1;
@@ -155,6 +213,7 @@
       flex-direction: column;
       height: 100vh;
       overflow: hidden;
+      min-width: 0;
     }
 
     /* ── UPLOAD SCREEN ── */
@@ -165,9 +224,10 @@
       align-items: center;
       justify-content: center;
       padding: 40px 24px;
+      overflow-y: auto;
     }
 
-    .upload-hero { text-align: center; max-width: 560px; }
+    .upload-hero { text-align: center; max-width: 560px; width: 100%; }
 
     .upload-icon-big {
       width: 64px; height: 64px;
@@ -291,6 +351,7 @@
       flex-direction: column;
       flex: 1;
       overflow: hidden;
+      min-width: 0;
     }
 
     .chat-header {
@@ -314,6 +375,7 @@
       font-family: var(--mono);
       padding: 4px 10px;
       border-radius: 20px;
+      white-space: nowrap;
     }
 
     /* ── MESSAGES ── */
@@ -359,6 +421,8 @@
       font-size: 14px;
       line-height: 1.7;
       max-width: calc(100% - 44px);
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
 
     .message.user .msg-bubble {
@@ -486,17 +550,67 @@
     }
 
     .quick-btn:hover { border-color: var(--accent); color: var(--text); }
+
+    /* ══════════════════════════════════════ */
+    /* ── MOBILE BREAKPOINT ── */
+    /* ══════════════════════════════════════ */
+    @media (max-width: 768px) {
+      .mobile-topbar { display: flex; }
+
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        transform: translateX(-100%);
+        box-shadow: 4px 0 24px rgba(0,0,0,0.4);
+      }
+
+      .sidebar.open { transform: translateX(0); }
+
+      .sidebar-close-btn { display: block; }
+
+      .sidebar-overlay.open { display: block; }
+
+      .main { width: 100%; }
+
+      .chat-header { display: none; }
+
+      .messages { padding: 16px; }
+
+      .message { max-width: 100%; }
+
+      .msg-bubble {
+        max-width: calc(100% - 40px);
+        font-size: 13px;
+        padding: 10px 14px;
+      }
+
+      .input-area { padding: 12px 14px 16px; }
+
+      .upload-hero h1 { font-size: 21px; }
+      .upload-hero p { font-size: 13px; margin-bottom: 24px; }
+      #uploadScreen { padding: 24px 16px; }
+
+      .quick-actions { gap: 6px; }
+      .quick-btn { font-size: 11px; padding: 6px 11px; }
+    }
   </style>
 </head>
 <body>
 
+<!-- SIDEBAR OVERLAY (mobile) -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
 <!-- SIDEBAR -->
-<div class="sidebar">
+<div class="sidebar" id="sidebar">
   <div class="sidebar-header">
-    <a href="/" class="logo">
-      <div class="logo-icon">⚡</div>
-      <span class="logo-text">Resume<span>IQ</span></span>
-    </a>
+    <div class="sidebar-header-top">
+      <a href="/" class="logo">
+        <div class="logo-icon">⚡</div>
+        <span class="logo-text">Resume<span>IQ</span></span>
+      </a>
+      <button class="sidebar-close-btn" id="sidebarCloseBtn">✕</button>
+    </div>
     <button class="new-chat-btn" id="newChatBtn">＋ New Chat</button>
   </div>
 
@@ -524,6 +638,12 @@
 <!-- MAIN -->
 <div class="main">
 
+  <!-- MOBILE TOP BAR -->
+  <div class="mobile-topbar">
+    <button class="hamburger-btn" id="hamburgerBtn">☰</button>
+    <span class="logo-text">Resume<span style="color:var(--accent)">IQ</span> Chat</span>
+  </div>
+
   <!-- UPLOAD SCREEN -->
   <div id="uploadScreen">
     <div class="upload-hero">
@@ -542,7 +662,7 @@
           <div style="font-size:32px">📄</div>
           <p>Drop your resume here or <label for="resumeFile" class="browse">browse</label></p>
           <p class="hint">PDF · DOCX · DOC · TXT · Max 5MB</p>
-          <input type="file" id="resumeFile" accept=".pdf,.docx,.doc,.txt" hidden>
+          <input type="file" id="resumeFile" accept=".pdf,.docx,.doc,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" hidden>
         </div>
         <div class="file-selected-bar" id="fileSelectedBar">
           <span>✅</span>
@@ -605,6 +725,26 @@
   let selectedFile = null;
   let activeTab = 'file';
   let isLoading = false;
+
+  // ── MOBILE SIDEBAR TOGGLE ──
+  const sidebar = document.getElementById('sidebar');
+  const sidebarOverlay = document.getElementById('sidebarOverlay');
+  const hamburgerBtn = document.getElementById('hamburgerBtn');
+  const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
+
+  function openSidebar() {
+    sidebar.classList.add('open');
+    sidebarOverlay.classList.add('open');
+  }
+
+  function closeSidebar() {
+    sidebar.classList.remove('open');
+    sidebarOverlay.classList.remove('open');
+  }
+
+  hamburgerBtn.addEventListener('click', openSidebar);
+  sidebarCloseBtn.addEventListener('click', closeSidebar);
+  sidebarOverlay.addEventListener('click', closeSidebar);
 
   // ── TABS ──
   function switchTab(tab) {
@@ -741,6 +881,7 @@
   function sendQuick(text) {
     const screen = document.getElementById('chatScreen');
     if (screen.style.display === 'none' || screen.style.display === '') return;
+    closeSidebar();
     document.getElementById('messageInput').value = text;
     sendMessage();
   }
@@ -851,6 +992,7 @@
   // ── NEW CHAT ──
   document.getElementById('newChatBtn').addEventListener('click', async () => {
     await fetch('/chat/reset', { method: 'POST' });
+    closeSidebar();
     document.getElementById('chatScreen').style.display = 'none';
     document.getElementById('uploadScreen').style.display = 'flex';
     document.getElementById('messages').innerHTML = '';
