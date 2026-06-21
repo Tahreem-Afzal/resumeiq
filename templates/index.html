@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ResumeIQ — AI Resume Analyzer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+  <header>
+    <div class="header-inner">
+      <a href="/landing" class="logo">
+        <span class="logo-icon">⚡</span>
+        <span class="logo-text">Resume<span class="accent">IQ</span></span>
+      </a>
+      <p class="tagline">AI-Powered Resume Analysis &middot; LLaMA 3.3 70B</p>
+    </div>
+  </header>
+
+  <main>
+    <!-- ░░ UPLOAD SCREEN ░░ -->
+    <section class="upload-section" id="uploadSection">
+      <div class="upload-card">
+        <h1 class="hero-title">Know exactly how your<br><span class="accent">resume performs.</span></h1>
+        <p class="hero-sub">Upload your resume and optionally paste a job description. Get an ATS score, keyword match breakdown, format audit, and a clear apply / don't-apply verdict — then chat for follow-ups.</p>
+
+        <div class="upload-tabs">
+          <button class="tab-btn active" id="tabFile" type="button">📄 Upload File</button>
+          <button class="tab-btn" id="tabPaste" type="button">📋 Paste Text</button>
+        </div>
+
+        <div class="tab-content active" id="fileTabContent">
+          <div class="upload-zone" id="uploadZone">
+            <div class="upload-icon">📄</div>
+            <p class="upload-label">Drop your resume here or <label for="resumeFile" class="browse-link">browse</label></p>
+            <p class="upload-hint">PDF, DOCX, DOC, or TXT &middot; Max 5MB</p>
+            <input type="file" id="resumeFile" accept=".pdf,.docx,.doc,.txt" hidden>
+          </div>
+          <div class="file-selected" id="fileSelected" style="display:none">
+            <span class="file-icon">✅</span>
+            <span id="fileName">file.pdf</span>
+            <button class="remove-file" id="removeFile">✕</button>
+          </div>
+        </div>
+
+        <div class="tab-content" id="pasteTabContent">
+          <textarea class="paste-area" id="pasteArea" placeholder="Paste your resume text here — include contact info, summary, experience, education, skills, and projects..." rows="8"></textarea>
+        </div>
+
+        <div class="jd-section">
+          <label class="jd-label" for="jobDescription">
+            Job Description <span class="optional-tag">Optional &middot; enables role-specific matching</span>
+          </label>
+          <textarea id="jobDescription" placeholder="Paste the job description here for a tailored ATS match, keyword gaps, and apply/don't-apply verdict..." rows="5"></textarea>
+        </div>
+
+        <button class="analyze-btn" id="analyzeBtn" disabled>
+          <span id="btnText">Analyze Resume</span>
+          <span id="btnLoader" style="display:none">Analyzing<span class="dots">...</span></span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ░░ REPORT SCREEN ░░ -->
+    <section class="results-section" id="resultsSection" style="display:none">
+      <div class="results-header">
+        <button class="back-btn" id="backBtn">← Analyze Another</button>
+        <h2>Analysis Report</h2>
+      </div>
+
+      <!-- Top metric row -->
+      <div class="metric-row" id="metricRow"></div>
+
+      <!-- Verdict -->
+      <div class="verdict-card" id="verdictCard">
+        <div class="verdict-icon" id="verdictIcon">🙂</div>
+        <div class="verdict-body">
+          <div class="verdict-title" id="verdictTitle"></div>
+          <div class="verdict-text" id="verdictText"></div>
+        </div>
+      </div>
+
+      <!-- Keyword match -->
+      <div class="result-block">
+        <h3 class="block-title">🎯 Keyword Match by Category</h3>
+        <div id="categoryBars"></div>
+
+        <div class="kw-group">
+          <div class="kw-label">Found in your resume</div>
+          <div class="keyword-tags" id="kwFound"></div>
+        </div>
+        <div class="kw-group" id="kwWeakGroup">
+          <div class="kw-label">Present but weak</div>
+          <div class="keyword-tags" id="kwWeak"></div>
+        </div>
+        <div class="kw-group" id="kwMissingGroup">
+          <div class="kw-label">Missing keywords</div>
+          <div class="keyword-tags" id="kwMissing"></div>
+        </div>
+      </div>
+
+      <!-- Section scores -->
+      <div class="result-block">
+        <h3 class="block-title">📊 Section Scores</h3>
+        <div class="bar-grid" id="sectionBars"></div>
+      </div>
+
+      <!-- Sections detected -->
+      <div class="result-block">
+        <h3 class="block-title">🔍 Sections Detected</h3>
+        <div class="tags-row" id="sectionsDetected"></div>
+      </div>
+
+      <!-- ATS format audit -->
+      <div class="result-block">
+        <h3 class="block-title">🤖 ATS Format Audit</h3>
+        <ul class="check-list" id="atsChecklist"></ul>
+      </div>
+
+      <!-- Strengths / Improvements -->
+      <div class="two-col">
+        <div class="result-block">
+          <h3 class="block-title">✅ Strengths</h3>
+          <ul class="result-list green" id="strengthsList"></ul>
+        </div>
+        <div class="result-block">
+          <h3 class="block-title">⚠️ Improvements Needed</h3>
+          <ul class="result-list orange" id="improvementsList"></ul>
+        </div>
+      </div>
+
+      <!-- Tips -->
+      <div class="result-block" id="tipsBlock">
+        <h3 class="block-title">💡 How to Strengthen This</h3>
+        <div id="tipsList"></div>
+      </div>
+
+      <!-- Bullet rewrites -->
+      <div class="result-block" id="bulletsBlock">
+        <h3 class="block-title">✏️ Bullet Point Rewrites</h3>
+        <div id="bulletRewrites"></div>
+      </div>
+
+      <!-- Grammar -->
+      <div class="result-block" id="grammarBlock">
+        <h3 class="block-title">📝 Grammar &amp; Language</h3>
+        <ul class="result-list red" id="grammarList"></ul>
+      </div>
+
+      <!-- Interview questions -->
+      <div class="result-block">
+        <h3 class="block-title">🎤 Likely Interview Questions</h3>
+        <ol class="interview-list" id="interviewList"></ol>
+      </div>
+
+      <!-- Export + Chat CTA -->
+      <div class="action-row">
+        <button class="download-pdf-btn" id="downloadPdfBtn">⬇ Download PDF Report</button>
+      </div>
+
+      <div class="chat-cta">
+        <div class="chat-cta-text">
+          <strong>Want help acting on this?</strong>
+          <span>Chat with ResumeIQ to rewrite sections, get more interview questions, or tailor this further.</span>
+        </div>
+        <button class="chat-cta-btn" id="chatCtaBtn">💬 Chat about this report →</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>ResumeIQ &middot; Built with Flask + Groq AI (LLaMA 3.3 70B) &middot; <a href="https://github.com" target="_blank">GitHub</a></p>
+  </footer>
+
+  <script src="/static/js/main.js"></script>
+</body>
+</html>

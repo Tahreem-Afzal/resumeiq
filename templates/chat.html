@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ResumeIQ Chat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0d0f;
+      --sidebar: #111114;
+      --surface: #1a1a1f;
+      --border: #2a2a35;
+      --text: #ececf1;
+      --muted: #8e8ea0;
+      --accent: #3b82f6;
+      --accent-dim: #1d4ed8;
+      --accent-glow: rgba(59,130,246,0.12);
+      --user-bg: #1e3a5f;
+      --bot-bg: #1a1a1f;
+      --green: #10b981;
+      --font: 'Inter', sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+    }
+
+    html, body { height: 100%; overflow: hidden; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      display: flex;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 260px;
+      flex-shrink: 0;
+      background: var(--sidebar);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    .sidebar-header {
+      padding: 20px 16px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 28px; height: 28px;
+      background: var(--accent);
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+    }
+
+    .logo-text { font-size: 16px; font-weight: 600; color: var(--text); }
+    .logo-text span { color: var(--accent); }
+
+    .new-chat-btn {
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 9px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: var(--font);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+    }
+
+    .new-chat-btn:hover { background: var(--accent-dim); }
+
+    .sidebar-section {
+      padding: 12px 16px 6px;
+      font-size: 11px;
+      font-family: var(--mono);
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .sidebar-tips {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 10px;
+    }
+
+    .tip-btn {
+      width: 100%;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-family: var(--font);
+      cursor: pointer;
+      text-align: left;
+      margin-bottom: 6px;
+      transition: all 0.2s;
+      line-height: 1.4;
+    }
+
+    .tip-btn:hover { background: var(--surface); color: var(--text); border-color: var(--accent); }
+
+    .sidebar-footer {
+      padding: 14px 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .resume-status {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 12px;
+    }
+
+    .status-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 6px;
+    }
+
+    .status-dot.loaded { background: var(--green); }
+    .status-dot.empty { background: var(--muted); }
+
+    .status-label { font-weight: 500; }
+    .status-preview { color: var(--muted); font-size: 11px; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* ── MAIN ── */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── UPLOAD SCREEN ── */
+    #uploadScreen {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+    }
+
+    .upload-hero { text-align: center; max-width: 560px; }
+
+    .upload-icon-big {
+      width: 64px; height: 64px;
+      background: var(--accent-glow);
+      border: 1px solid rgba(59,130,246,0.3);
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px;
+      margin: 0 auto 24px;
+    }
+
+    .upload-hero h1 { font-size: 26px; font-weight: 600; letter-spacing: -0.5px; margin-bottom: 10px; }
+    .upload-hero p { font-size: 14px; color: var(--muted); margin-bottom: 36px; line-height: 1.7; }
+
+    .upload-tabs {
+      display: flex;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 20px;
+      width: 100%;
+    }
+
+    .tab-btn {
+      flex: 1;
+      background: none;
+      border: none;
+      color: var(--muted);
+      padding: 8px;
+      border-radius: 7px;
+      font-size: 13px;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active { background: var(--accent); color: #fff; }
+
+    .tab-content { display: none; width: 100%; }
+    .tab-content.active { display: block; }
+
+    .upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 40px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 16px;
+    }
+
+    .upload-zone:hover, .upload-zone.drag-over {
+      border-color: var(--accent);
+      background: var(--accent-glow);
+    }
+
+    .upload-zone p { font-size: 14px; color: var(--muted); margin-top: 10px; }
+    .upload-zone .browse { color: var(--accent); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+    .upload-zone .hint { font-size: 12px; font-family: var(--mono); margin-top: 6px; }
+
+    textarea.paste-area {
+      width: 100%;
+      height: 200px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 13px;
+      resize: none;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    textarea.paste-area:focus { outline: none; border-color: var(--accent); }
+    textarea.paste-area::placeholder { color: var(--muted); }
+
+    .file-selected-bar {
+      display: none;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .remove-btn {
+      margin-left: auto;
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .start-btn {
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 13px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .start-btn:hover { background: var(--accent-dim); }
+    .start-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── CHAT SCREEN ── */
+    #chatScreen {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .chat-header {
+      padding: 14px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .chat-header-info h2 { font-size: 15px; font-weight: 600; }
+    .chat-header-info p { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+
+    .header-badge {
+      margin-left: auto;
+      background: rgba(16,185,129,0.1);
+      border: 1px solid rgba(16,185,129,0.3);
+      color: var(--green);
+      font-size: 11px;
+      font-family: var(--mono);
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+
+    /* ── MESSAGES ── */
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .messages::-webkit-scrollbar { width: 4px; }
+    .messages::-webkit-scrollbar-track { background: transparent; }
+    .messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .message {
+      display: flex;
+      gap: 12px;
+      max-width: 780px;
+      animation: fadeIn 0.25s ease;
+    }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    .message.user { align-self: flex-end; flex-direction: row-reverse; }
+    .message.bot { align-self: flex-start; }
+
+    .msg-avatar {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .message.user .msg-avatar { background: var(--accent); }
+    .message.bot .msg-avatar { background: var(--surface); border: 1px solid var(--border); }
+
+    .msg-bubble {
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.7;
+      max-width: calc(100% - 44px);
+    }
+
+    .message.user .msg-bubble {
+      background: var(--user-bg);
+      border: 1px solid rgba(59,130,246,0.3);
+      border-bottom-right-radius: 4px;
+    }
+
+    .message.bot .msg-bubble {
+      background: var(--bot-bg);
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 4px;
+    }
+
+    .msg-bubble strong { color: var(--text); font-weight: 600; }
+    .msg-bubble ul, .msg-bubble ol { padding-left: 18px; margin: 8px 0; }
+    .msg-bubble li { margin-bottom: 4px; }
+    .msg-bubble p { margin-bottom: 8px; }
+    .msg-bubble p:last-child { margin-bottom: 0; }
+
+    .typing-indicator {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      padding: 14px 16px;
+    }
+
+    .typing-dot {
+      width: 7px; height: 7px;
+      background: var(--muted);
+      border-radius: 50%;
+      animation: typing 1.2s infinite;
+    }
+
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typing {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+      30% { transform: translateY(-6px); opacity: 1; }
+    }
+
+    /* ── INPUT ── */
+    .input-area {
+      padding: 16px 24px 20px;
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .input-box {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 14px;
+      transition: border-color 0.2s;
+    }
+
+    .input-box:focus-within { border-color: var(--accent); }
+
+    #messageInput {
+      flex: 1;
+      background: none;
+      border: none;
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 14px;
+      resize: none;
+      max-height: 120px;
+      line-height: 1.5;
+      outline: none;
+    }
+
+    #messageInput::placeholder { color: var(--muted); }
+
+    .send-btn {
+      background: var(--accent);
+      border: none;
+      color: #fff;
+      width: 34px; height: 34px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+
+    .send-btn:hover { background: var(--accent-dim); }
+    .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .input-hint { font-size: 11px; color: var(--muted); text-align: center; margin-top: 8px; font-family: var(--mono); }
+
+    /* ── WELCOME MSG ── */
+    .welcome-msg {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .welcome-msg h3 { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+    .welcome-msg p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+    .quick-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .quick-btn {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--muted2, #94a3b8);
+      padding: 7px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .quick-btn:hover { border-color: var(--accent); color: var(--text); }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-header">
+    <a href="/" class="logo">
+      <div class="logo-icon">⚡</div>
+      <span class="logo-text">Resume<span>IQ</span></span>
+    </a>
+    <button class="new-chat-btn" id="newChatBtn">＋ New Chat</button>
+  </div>
+
+  <div class="sidebar-section">// Quick Prompts</div>
+  <div class="sidebar-tips">
+    <button class="tip-btn" onclick="sendQuick('Analyze my resume and give me an overall score')">📊 Overall resume score</button>
+    <button class="tip-btn" onclick="sendQuick('What are the biggest weaknesses in my resume?')">⚠️ Biggest weaknesses</button>
+    <button class="tip-btn" onclick="sendQuick('Rewrite my bullet points with stronger action verbs')">✏️ Rewrite bullet points</button>
+    <button class="tip-btn" onclick="sendQuick('What keywords am I missing for an AI engineering role?')">🔑 Missing keywords (AI)</button>
+    <button class="tip-btn" onclick="sendQuick('Generate 10 interview questions based on my resume')">🎤 Interview questions</button>
+    <button class="tip-btn" onclick="sendQuick('How can I improve my skills section?')">🛠️ Improve skills section</button>
+    <button class="tip-btn" onclick="sendQuick('Write a professional summary for my resume')">📝 Write a summary</button>
+    <button class="tip-btn" onclick="sendQuick('Is my resume ATS-friendly? What should I fix?')">🤖 ATS optimization</button>
+    <button class="tip-btn" onclick="sendQuick('Tailor my resume for a data science internship')">🎯 Tailor for data science</button>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="resume-status" id="resumeStatus">
+      <div><span class="status-dot empty" id="statusDot"></span><span class="status-label" id="statusLabel">No resume loaded</span></div>
+      <div class="status-preview" id="statusPreview">Upload or paste your resume to start</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- UPLOAD SCREEN -->
+  <div id="uploadScreen">
+    <div class="upload-hero">
+      <div class="upload-icon-big">💬</div>
+      <h1>Chat with your resume</h1>
+      <p>Upload your resume or paste the text below. Then ask anything — improve sections, get interview questions, fix bullet points, and more.</p>
+
+      <div class="upload-tabs">
+        <button class="tab-btn active" id="tabFile" onclick="switchTab('file')">📄 Upload File</button>
+        <button class="tab-btn" id="tabPaste" onclick="switchTab('paste')">📋 Paste Text</button>
+      </div>
+
+      <!-- FILE TAB -->
+      <div class="tab-content active" id="fileTab">
+        <div class="upload-zone" id="uploadZone">
+          <div style="font-size:32px">📄</div>
+          <p>Drop your resume here or <label for="resumeFile" class="browse">browse</label></p>
+          <p class="hint">PDF · DOCX · DOC · TXT · Max 5MB</p>
+          <input type="file" id="resumeFile" accept=".pdf,.docx,.doc,.txt" hidden>
+        </div>
+        <div class="file-selected-bar" id="fileSelectedBar">
+          <span>✅</span>
+          <span id="selectedFileName"></span>
+          <button class="remove-btn" id="removeFileBtn">✕</button>
+        </div>
+      </div>
+
+      <!-- PASTE TAB -->
+      <div class="tab-content" id="pasteTab">
+        <textarea class="paste-area" id="pasteArea" placeholder="Paste your resume text here...&#10;&#10;Include all sections: contact info, summary, experience, education, skills, projects..."></textarea>
+      </div>
+
+      <button class="start-btn" id="startBtn" disabled>Start chatting →</button>
+    </div>
+  </div>
+
+  <!-- CHAT SCREEN -->
+  <div id="chatScreen">
+    <div class="chat-header">
+      <div style="width:36px; height:36px; background:var(--accent-glow); border:1px solid rgba(59,130,246,0.3); border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:18px;">⚡</div>
+      <div class="chat-header-info">
+        <h2>ResumeIQ Chat</h2>
+        <p>LLaMA 3.3 70B · resume loaded</p>
+      </div>
+      <div class="header-badge">● resume active</div>
+    </div>
+
+    <div class="messages" id="messages">
+      <div class="message bot">
+        <div class="msg-avatar">⚡</div>
+        <div class="msg-bubble">
+          <div class="welcome-msg">
+            <h3>👋 Hi! I've loaded your resume.</h3>
+            <p>I'm your AI resume coach. Ask me anything about your resume — I can improve bullet points, suggest missing keywords, generate interview questions, or help you tailor it for a specific role.</p>
+            <div class="quick-actions">
+              <button class="quick-btn" onclick="sendQuick('Give me an overall score and summary of my resume')">📊 Overall score</button>
+              <button class="quick-btn" onclick="sendQuick('What are my biggest weaknesses?')">⚠️ Weaknesses</button>
+              <button class="quick-btn" onclick="sendQuick('Rewrite my bullet points')">✏️ Rewrite bullets</button>
+              <button class="quick-btn" onclick="sendQuick('Generate interview questions')">🎤 Interview prep</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <div class="input-box">
+        <textarea id="messageInput" placeholder="Ask anything about your resume..." rows="1"></textarea>
+        <button class="send-btn" id="sendBtn">↑</button>
+      </div>
+      <div class="input-hint">Press Enter to send · Shift+Enter for new line</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ── STATE ──
+  let selectedFile = null;
+  let activeTab = 'file';
+  let isLoading = false;
+
+  // ── TABS ──
+  function switchTab(tab) {
+    activeTab = tab;
+    document.getElementById('tabFile').classList.toggle('active', tab === 'file');
+    document.getElementById('tabPaste').classList.toggle('active', tab === 'paste');
+    document.getElementById('fileTab').classList.toggle('active', tab === 'file');
+    document.getElementById('pasteTab').classList.toggle('active', tab === 'paste');
+    updateStartBtn();
+  }
+
+  // ── FILE UPLOAD ──
+  const uploadZone = document.getElementById('uploadZone');
+  const resumeFileInput = document.getElementById('resumeFile');
+
+  uploadZone.addEventListener('click', () => resumeFileInput.click());
+  uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+  uploadZone.addEventListener('drop', e => {
+    e.preventDefault();
+    uploadZone.classList.remove('drag-over');
+    if (e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]);
+  });
+
+  resumeFileInput.addEventListener('change', () => {
+    if (resumeFileInput.files[0]) setFile(resumeFileInput.files[0]);
+  });
+
+  function setFile(file) {
+    selectedFile = file;
+    document.getElementById('selectedFileName').textContent = file.name;
+    document.getElementById('fileSelectedBar').style.display = 'flex';
+    uploadZone.style.display = 'none';
+    updateStartBtn();
+  }
+
+  document.getElementById('removeFileBtn').addEventListener('click', () => {
+    selectedFile = null;
+    resumeFileInput.value = '';
+    document.getElementById('fileSelectedBar').style.display = 'none';
+    uploadZone.style.display = 'block';
+    updateStartBtn();
+  });
+
+  document.getElementById('pasteArea').addEventListener('input', updateStartBtn);
+
+  function updateStartBtn() {
+    const hasFile = activeTab === 'file' && selectedFile;
+    const hasPaste = activeTab === 'paste' && document.getElementById('pasteArea').value.trim().length > 50;
+    document.getElementById('startBtn').disabled = !(hasFile || hasPaste);
+  }
+
+  // ── START CHAT ──
+  document.getElementById('startBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('startBtn');
+    btn.textContent = 'Loading resume...';
+    btn.disabled = true;
+
+    const formData = new FormData();
+
+    if (activeTab === 'file' && selectedFile) {
+      formData.append('resume', selectedFile);
+    } else {
+      formData.append('resume_text', document.getElementById('pasteArea').value.trim());
+    }
+
+    try {
+      const res = await fetch('/chat/upload', { method: 'POST', body: formData });
+      const data = await res.json();
+
+      if (data.error) {
+        alert('Error: ' + data.error);
+        btn.textContent = 'Start chatting →';
+        btn.disabled = false;
+        return;
+      }
+
+      // Update sidebar status
+      document.getElementById('statusDot').className = 'status-dot loaded';
+      document.getElementById('statusLabel').textContent = 'Resume loaded';
+      document.getElementById('statusPreview').textContent = data.preview + '...';
+
+      // Switch to chat
+      document.getElementById('uploadScreen').style.display = 'none';
+      document.getElementById('chatScreen').style.display = 'flex';
+      document.getElementById('messageInput').focus();
+
+    } catch (err) {
+      alert('Failed to load resume. Try again.');
+      btn.textContent = 'Start chatting →';
+      btn.disabled = false;
+    }
+  });
+
+  // ── SEND MESSAGE ──
+  async function sendMessage() {
+    const input = document.getElementById('messageInput');
+    const msg = input.value.trim();
+    if (!msg || isLoading) return;
+
+    input.value = '';
+    input.style.height = 'auto';
+    addMessage('user', msg);
+    showTyping();
+    isLoading = true;
+    document.getElementById('sendBtn').disabled = true;
+
+    try {
+      const res = await fetch('/chat/message', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: msg })
+      });
+
+      const data = await res.json();
+      removeTyping();
+
+      if (data.error) {
+        addMessage('bot', '❌ ' + data.error);
+      } else {
+        addMessage('bot', data.response);
+      }
+
+    } catch (err) {
+      removeTyping();
+      addMessage('bot', '❌ Something went wrong. Please try again.');
+    } finally {
+      isLoading = false;
+      document.getElementById('sendBtn').disabled = false;
+      document.getElementById('messageInput').focus();
+    }
+  }
+
+  function sendQuick(text) {
+    const screen = document.getElementById('chatScreen');
+    if (screen.style.display === 'none' || screen.style.display === '') return;
+    document.getElementById('messageInput').value = text;
+    sendMessage();
+  }
+
+  function addMessage(role, text) {
+    const messages = document.getElementById('messages');
+    const div = document.createElement('div');
+    div.className = `message ${role}`;
+
+    const avatar = document.createElement('div');
+    avatar.className = 'msg-avatar';
+    avatar.textContent = role === 'user' ? '👤' : '⚡';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'msg-bubble';
+    bubble.innerHTML = formatMessage(text);
+
+    div.appendChild(avatar);
+    div.appendChild(bubble);
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  function formatMessage(text) {
+    return text
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/^### (.*?)$/gm, '<strong>$1</strong>')
+      .replace(/^## (.*?)$/gm, '<strong>$1</strong>')
+      .replace(/^# (.*?)$/gm, '<strong>$1</strong>')
+      .replace(/^[-•] (.*?)$/gm, '<li>$1</li>')
+      .replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>')
+      .replace(/\n\n/g, '</p><p>')
+      .replace(/^(.+)$/gm, (m) => m.startsWith('<') ? m : `<p>${m}</p>`);
+  }
+
+  function showTyping() {
+    const messages = document.getElementById('messages');
+    const div = document.createElement('div');
+    div.className = 'message bot';
+    div.id = 'typingIndicator';
+    div.innerHTML = `
+      <div class="msg-avatar">⚡</div>
+      <div class="msg-bubble">
+        <div class="typing-indicator">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+      </div>`;
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  function removeTyping() {
+    const el = document.getElementById('typingIndicator');
+    if (el) el.remove();
+  }
+
+  // ── INPUT AUTO-RESIZE ──
+  const messageInput = document.getElementById('messageInput');
+  messageInput.addEventListener('input', () => {
+    messageInput.style.height = 'auto';
+    messageInput.style.height = Math.min(messageInput.scrollHeight, 120) + 'px';
+  });
+
+  messageInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  document.getElementById('sendBtn').addEventListener('click', sendMessage);
+
+  // ── HANDOFF FROM REPORT ──
+  // If the user clicked "Chat about this report" on the analysis page,
+  // the resume + report are already stored server-side in the session.
+  // Skip the upload screen and jump straight into chat.
+  (async function checkReportHandoff() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('from_report') !== '1') return;
+
+    try {
+      const res = await fetch('/chat/start', { method: 'POST' });
+      const data = await res.json();
+      if (data.error || !data.preview) return;
+
+      document.getElementById('statusDot').className = 'status-dot loaded';
+      document.getElementById('statusLabel').textContent = 'Resume loaded';
+      document.getElementById('statusPreview').textContent = data.preview + '...';
+
+      document.getElementById('uploadScreen').style.display = 'none';
+      document.getElementById('chatScreen').style.display = 'flex';
+
+      if (data.has_report) {
+        const welcomeBubble = document.querySelector('#messages .welcome-msg p');
+        if (welcomeBubble) {
+          welcomeBubble.textContent = "I've loaded your resume along with the analysis report you just ran. Ask me to rewrite a section, dig into any score, or get more interview questions tailored to it.";
+        }
+      }
+
+      document.getElementById('messageInput').focus();
+    } catch (err) {
+      // silently fall back to upload screen
+    }
+  })();
+
+  // ── NEW CHAT ──
+  document.getElementById('newChatBtn').addEventListener('click', async () => {
+    await fetch('/chat/reset', { method: 'POST' });
+    document.getElementById('chatScreen').style.display = 'none';
+    document.getElementById('uploadScreen').style.display = 'flex';
+    document.getElementById('messages').innerHTML = '';
+    document.getElementById('statusDot').className = 'status-dot empty';
+    document.getElementById('statusLabel').textContent = 'No resume loaded';
+    document.getElementById('statusPreview').textContent = 'Upload or paste your resume to start';
+    selectedFile = null;
+    resumeFileInput.value = '';
+    document.getElementById('fileSelectedBar').style.display = 'none';
+    uploadZone.style.display = 'block';
+    document.getElementById('pasteArea').value = '';
+    document.getElementById('startBtn').disabled = true;
+    document.getElementById('startBtn').textContent = 'Start chatting →';
+  });
+</script>
+</body>
+</html>
