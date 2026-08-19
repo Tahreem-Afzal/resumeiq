@@ -8,6 +8,8 @@ from utils.analyzer import analyze_resume
 from utils.chatbot import chat_with_resume
 from utils import database
 from utils import pdf_export
+from utils.orchestrator import run_pipeline
+from utils import mock_interview
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "resumeiq-dev-secret-key-2026-fixed")
@@ -233,6 +235,104 @@ def export_pdf_by_id(record_id):
         as_attachment=True,
         download_name=filename,
     )
+
+
+# ── AGENTS: resume optimization + market intel + roadmap (parallel pipeline) ──
+
+@app.route('/agents/pipeline', methods=['POST'])
+def agents_pipeline():
+    """
+    Runs the Resume Optimization Agent + Job Market Intel Agent + Gap/Roadmap
+    Agent together via the LangGraph orchestrator. Uses the resume/JD already
+    in session from /analyze, unless overridden in the request body.
+    """
+    data = request.get_json(silent=True) or {}
+    resume_text = data.get('resume_text') or session.get('resume_text', '')
+    job_description = data.get('job_description') or session.get('job_description', '')
+
+    if not resume_text or len(resume_text.strip()) < 50:
+        return jsonify({'error': 'No resume available. Please analyze a resume first.'}), 400
+
+    history_id = session.get('history_id')
+    analysis_report = None
+    if history_id:
+        record = database.get_analysis_by_id(history_id)
+        if record:
+            analysis_report = record.get('report')
+
+    try:
+        result = run_pipeline(resume_text, job_description, analysis_report)
+    except Exception as e:
+        return jsonify({'error': f'Agent pipeline failed: {str(e)}'}), 500
+
+    return jsonify(result)
+
+
+# ── AGENT 3: Mock Interview (session-persisted, multi-turn) ──
+
+@app.route('/agents/interview/start', methods=['POST'])
+def interview_start():
+    resume_text = session.get('resume_text', '')
+    job_description = session.get('job_description', '')
+
+    if not resume_text:
+        return jsonify({'error': 'No resume in session. Please analyze a resume first.'}), 400
+
+    try:
+        turn_result = mock_interview.run_interview_turn(resume_text, job_description, transcript=[])
+    except Exception as e:
+        return jsonify({'error': f'Could not start interview: {str(e)}'}), 500
+
+    session['interview_transcript'] = turn_result['transcript']
+    return jsonify({'current_question': turn_result['current_question']})
+
+
+@app.route('/agents/interview/answer', methods=['POST'])
+def interview_answer():
+    data = request.get_json(silent=True) or {}
+    answer = (data.get('answer') or '').strip()
+
+    if not answer:
+        return jsonify({'error': 'Empty answer'}), 400
+
+    resume_text = session.get('resume_text', '')
+    job_description = session.get('job_description', '')
+    transcript = session.get('interview_transcript', [])
+
+    if not transcript:
+        return jsonify({'error': 'No interview in progress. Call /agents/interview/start first.'}), 400
+
+    try:
+        turn_result = mock_interview.run_interview_turn(
+            resume_text, job_description, transcript=transcript, user_answer=answer
+        )
+    except Exception as e:
+        return jsonify({'error': f'Interview turn failed: {str(e)}'}), 500
+
+    session['interview_transcript'] = turn_result['transcript']
+    # last evaluated turn is second-to-last entry now that the next question was appended
+    evaluated_turn = turn_result['transcript'][-2] if len(turn_result['transcript']) >= 2 else None
+
+    return jsonify({
+        'evaluation': evaluated_turn.get('evaluation') if evaluated_turn else None,
+        'current_question': turn_result['current_question'],
+    })
+
+
+@app.route('/agents/interview/summary', methods=['GET'])
+def interview_summary():
+    transcript = session.get('interview_transcript', [])
+    try:
+        summary = mock_interview.summarize_interview(transcript)
+    except Exception as e:
+        return jsonify({'error': f'Could not summarize interview: {str(e)}'}), 500
+    return jsonify(summary)
+
+
+@app.route('/agents/interview/reset', methods=['POST'])
+def interview_reset():
+    session['interview_transcript'] = []
+    return jsonify({'success': True})
 
 
 # ── HISTORY (SQLite-backed, survives restarts) ──
