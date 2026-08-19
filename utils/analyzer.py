@@ -8,7 +8,7 @@ from utils import database
 
 load_dotenv()
 
-MODEL = "llama-3.3-70b-versatile"
+MODEL = "llama-3.1-8b-instant"
 
 
 def get_client():
