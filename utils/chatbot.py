@@ -5,8 +5,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-MODEL = "llama-3.3-70b-versatile"
-
+#MODEL = "llama-3.3-70b-versatile"
+MODEL="llama-3.1-8b-instant"
 SYSTEM_PROMPT = """You are ResumeIQ, an expert AI resume coach and career advisor. The user has already run a full resume analysis, and that report is included below for context. Your job now is to help them act on it through conversation.
 
 You can help with:
