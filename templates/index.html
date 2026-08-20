@@ -156,6 +156,45 @@
         <ol class="interview-list" id="interviewList"></ol>
       </div>
 
+      <!-- Deep Agent Pipeline: Resume Optimizer + Market Intel + Skill Roadmap -->
+      <div class="result-block agent-block">
+        <h3 class="block-title">🚀 Deep Agent Pipeline <span class="optional-tag">Optimizer · Market Intel · Skill Roadmap</span></h3>
+        <p class="agent-block-desc">Run three specialist agents on this resume: rewrite it against the job description (checked by a fact-checking critic for fabrication), match you to an in-demand role, and build a prioritized learning roadmap for any skill gaps.</p>
+        <button class="agent-run-btn" id="runAgentsBtn">
+          <span id="agentsBtnText">Run Agent Pipeline</span>
+          <span id="agentsBtnLoader" style="display:none">Running agents<span class="dots">...</span></span>
+        </button>
+        <div id="agentsResults" style="display:none"></div>
+      </div>
+
+      <!-- Live Mock Interview: Interviewer + Evaluator agents -->
+      <div class="result-block agent-block">
+        <h3 class="block-title">🎙️ Live Mock Interview <span class="optional-tag">Interviewer + Evaluator agents</span></h3>
+        <p class="agent-block-desc">Answer questions one at a time. A separate evaluator agent scores each answer on structure, specificity, relevance, and clarity — then gives you a final coaching summary.</p>
+
+        <div id="interviewIntro">
+          <button class="agent-run-btn" id="startInterviewBtn">
+            <span id="startInterviewBtnText">Start Mock Interview</span>
+            <span id="startInterviewBtnLoader" style="display:none">Starting<span class="dots">...</span></span>
+          </button>
+        </div>
+
+        <div id="interviewSession" style="display:none">
+          <div id="interviewEvaluation"></div>
+          <div class="interview-question-card" id="interviewQuestionCard"></div>
+          <textarea class="interview-answer-area" id="interviewAnswerArea" placeholder="Type your answer here..." rows="5"></textarea>
+          <div class="interview-actions">
+            <button class="agent-run-btn secondary" id="submitAnswerBtn">
+              <span id="submitAnswerBtnText">Submit Answer</span>
+              <span id="submitAnswerBtnLoader" style="display:none">Evaluating<span class="dots">...</span></span>
+            </button>
+            <button class="agent-run-btn ghost" id="finishInterviewBtn">Finish &amp; Get Summary</button>
+          </div>
+        </div>
+
+        <div id="interviewSummary" style="display:none"></div>
+      </div>
+
       <!-- Export + Chat CTA -->
       <div class="action-row">
         <button class="download-pdf-btn" id="downloadPdfBtn">⬇ Download PDF Report</button>
