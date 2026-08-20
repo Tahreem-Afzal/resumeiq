@@ -38,6 +38,26 @@ def _save_and_extract(file_storage):
             os.remove(filepath)
 
 
+def _get_resume_context():
+    """
+    Returns (resume_text, job_description) for the current session.
+
+    Resume/JD text is NOT stored in the session cookie (Flask's default
+    session is a signed client-side cookie capped at ~4KB by browsers;
+    real resume + JD text routinely exceeds that, causing the browser to
+    silently drop the Set-Cookie header). Instead we store only the
+    lightweight `history_id` pointer in session and fetch the actual
+    text from SQLite, same as the full report already does.
+    """
+    history_id = session.get('history_id')
+    if not history_id:
+        return '', ''
+    record = database.get_analysis_by_id(history_id)
+    if not record:
+        return '', ''
+    return record.get('resume_text', '') or '', record.get('job_description', '') or ''
+
+
 # ── PAGES ──
 
 @app.route('/')
@@ -85,14 +105,13 @@ def analyze():
     except Exception as e:
         return jsonify({'error': f'Analysis failed: {str(e)}'}), 500
 
-    # Store lightweight context for the follow-up chat.
-    # The FULL report is too large for a session cookie (4KB browser limit),
-    # so we only keep the resume text + a pointer (history_id) to the
-    # full report already persisted in SQLite by analyze_resume().
-    session['resume_text'] = resume_text[:6000]
-    session['job_description'] = job_description[:3000]
+    # Store ONLY a lightweight pointer in the session cookie. Resume text,
+    # JD, and the full report are too large for a session cookie (~4KB
+    # browser limit) and get silently dropped if we try — they're already
+    # persisted in SQLite by analyze_resume(), keyed by history_id.
     session['history_id'] = result.get('history_id')
     session['chat_history'] = []
+    session['interview_transcript'] = []
 
     return jsonify(result)
 
@@ -102,7 +121,8 @@ def analyze():
 @app.route('/chat/start', methods=['POST'])
 def chat_start():
     """Used when user clicks 'Chat about this' after seeing the report."""
-    if not session.get('resume_text'):
+    resume_text, _ = _get_resume_context()
+    if not resume_text:
         return jsonify({'error': 'No resume in session. Please analyze a resume first.'}), 400
 
     has_report = False
@@ -113,7 +133,7 @@ def chat_start():
 
     return jsonify({
         'success': True,
-        'preview': session['resume_text'][:200],
+        'preview': resume_text[:200],
         'has_report': has_report
     })
 
@@ -137,10 +157,13 @@ def chat_upload():
     if not resume_text or len(resume_text.strip()) < 50:
         return jsonify({'error': 'Resume text too short or empty.'}), 400
 
-    session['resume_text'] = resume_text[:6000]
-    session['job_description'] = ''
-    session['history_id'] = None
+    # Persist to SQLite (same store /analyze uses) so we only keep a small
+    # history_id pointer in the session cookie, not the raw text.
+    history_id = database.save_analysis(resume_text, '', {})
+
+    session['history_id'] = history_id
     session['chat_history'] = []
+    session['interview_transcript'] = []
 
     return jsonify({'success': True, 'preview': resume_text[:200]})
 
@@ -153,7 +176,7 @@ def chat_message():
     if not user_message:
         return jsonify({'error': 'Empty message'}), 400
 
-    resume_text = session.get('resume_text', '')
+    resume_text, _ = _get_resume_context()
     if not resume_text:
         return jsonify({'error': 'No resume loaded. Please upload your resume first.'}), 400
 
@@ -247,8 +270,9 @@ def agents_pipeline():
     in session from /analyze, unless overridden in the request body.
     """
     data = request.get_json(silent=True) or {}
-    resume_text = data.get('resume_text') or session.get('resume_text', '')
-    job_description = data.get('job_description') or session.get('job_description', '')
+    ctx_resume_text, ctx_job_description = _get_resume_context()
+    resume_text = data.get('resume_text') or ctx_resume_text
+    job_description = data.get('job_description') or ctx_job_description
 
     if not resume_text or len(resume_text.strip()) < 50:
         return jsonify({'error': 'No resume available. Please analyze a resume first.'}), 400
@@ -272,8 +296,7 @@ def agents_pipeline():
 
 @app.route('/agents/interview/start', methods=['POST'])
 def interview_start():
-    resume_text = session.get('resume_text', '')
-    job_description = session.get('job_description', '')
+    resume_text, job_description = _get_resume_context()
 
     if not resume_text:
         return jsonify({'error': 'No resume in session. Please analyze a resume first.'}), 400
@@ -295,8 +318,7 @@ def interview_answer():
     if not answer:
         return jsonify({'error': 'Empty answer'}), 400
 
-    resume_text = session.get('resume_text', '')
-    job_description = session.get('job_description', '')
+    resume_text, job_description = _get_resume_context()
     transcript = session.get('interview_transcript', [])
 
     if not transcript:
