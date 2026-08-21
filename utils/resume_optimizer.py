@@ -18,7 +18,9 @@ utils.scoring.compute_ats_formula_score) pre/post optimization.
 from utils.agent_client import call_json
 from utils.scoring import compute_ats_formula_score
 
-MAX_ROUNDS = 2
+MAX_ROUNDS = 1  # was 2 — each extra round adds up to 2 more sequential Groq
+# calls (generator + critic), which was pushing total pipeline latency past
+# Render free tier's request timeout and causing a 502 with no response body.
 
 
 GENERATOR_PROMPT_TEMPLATE = """You are an expert resume writer. Rewrite the RESUME below to better fit the JOB DESCRIPTION, maximizing keyword and role alignment.
