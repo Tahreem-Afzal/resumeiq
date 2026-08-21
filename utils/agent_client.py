@@ -34,7 +34,7 @@ def _strip_code_fence(raw: str) -> str:
 
 
 def call_json(prompt: str, model: str = DEFAULT_MODEL, temperature: float = 0.3,
-              max_tokens: int = 3000, system: str = None, reasoning_effort: str = "low") -> dict:
+              max_tokens: int = 2000, system: str = None, reasoning_effort: str = "low") -> dict:
     """
     Calls Groq expecting a raw JSON object back (no markdown fences).
     Raises json.JSONDecodeError if the model didn't comply — callers should
@@ -70,7 +70,7 @@ def call_json(prompt: str, model: str = DEFAULT_MODEL, temperature: float = 0.3,
 
 
 def call_text(prompt: str, model: str = DEFAULT_MODEL, temperature: float = 0.5,
-              max_tokens: int = 1500, system: str = None, reasoning_effort: str = "low") -> str:
+              max_tokens: int = 1200, system: str = None, reasoning_effort: str = "low") -> str:
     """Calls Groq expecting free-form text back (used for conversational agents)."""
     client = get_client()
     messages = []
