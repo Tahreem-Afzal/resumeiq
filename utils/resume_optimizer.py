@@ -86,7 +86,7 @@ def _run_generator(resume_text: str, job_description: str, feedback: str = None)
         job_description=job_description[:3000],
         feedback_block=feedback_block,
     )
-    return call_json(prompt, temperature=0.4, max_tokens=4500)
+    return call_json(prompt, temperature=0.4, max_tokens=2800)
 
 
 def _run_critic(resume_text: str, optimized_text: str, job_description: str) -> dict:
