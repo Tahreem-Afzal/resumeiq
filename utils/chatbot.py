@@ -70,7 +70,7 @@ def chat_with_resume(user_message: str, resume_text: str, history: list, report:
             model=MODEL,
             messages=messages,
             temperature=0.5,
-            max_tokens=3000,
+            max_tokens=1200,
             reasoning_effort="low",
         )
     except TypeError:
@@ -78,7 +78,7 @@ def chat_with_resume(user_message: str, resume_text: str, history: list, report:
             model=MODEL,
             messages=messages,
             temperature=0.5,
-            max_tokens=3000,
+            max_tokens=1200,
         )
 
     reply = response.choices[0].message.content.strip()
