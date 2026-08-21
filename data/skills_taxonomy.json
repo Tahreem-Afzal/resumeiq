@@ -1,0 +1,107 @@
+{
+  "_meta": {
+    "description": "Curated skills-demand taxonomy used by the Job Market Intelligence Agent. This is a STATIC, hand-curated seed dataset (not live-scraped) so results are reproducible for research purposes. Each role lists skills with a demand_score (1-100, relative importance in current job postings) and a category. Update periodically and cite the source/date in the paper's methodology section.",
+    "last_updated": "2026-08-19",
+    "source_note": "Seeded from general industry postings (LinkedIn/Indeed job description patterns, 2025-2026). Replace/expand with a labeled taxonomy for rigorous evaluation (e.g. precision/recall against a held-out set of real postings)."
+  },
+  "roles": {
+    "AI / Machine Learning Engineer": {
+      "aliases": ["ai engineer", "ml engineer", "machine learning engineer", "genai engineer", "llm engineer"],
+      "skills": [
+        {"name": "Python", "demand_score": 98, "category": "core"},
+        {"name": "PyTorch", "demand_score": 88, "category": "core"},
+        {"name": "LangGraph / LangChain", "demand_score": 82, "category": "framework"},
+        {"name": "RAG pipelines", "demand_score": 85, "category": "technique"},
+        {"name": "Vector databases (FAISS, Pinecone, Weaviate)", "demand_score": 78, "category": "tooling"},
+        {"name": "Prompt engineering", "demand_score": 75, "category": "technique"},
+        {"name": "Fine-tuning / PEFT / LoRA", "demand_score": 70, "category": "technique"},
+        {"name": "Multi-agent orchestration (CrewAI, AutoGen)", "demand_score": 65, "category": "framework"},
+        {"name": "Hugging Face Transformers", "demand_score": 80, "category": "framework"},
+        {"name": "MLOps (MLflow, model serving)", "demand_score": 68, "category": "tooling"},
+        {"name": "Docker", "demand_score": 72, "category": "tooling"},
+        {"name": "Cloud (AWS/Azure/GCP)", "demand_score": 74, "category": "infra"},
+        {"name": "SQL", "demand_score": 70, "category": "core"},
+        {"name": "Evaluation & metrics (ROC-AUC, calibration)", "demand_score": 60, "category": "technique"}
+      ]
+    },
+    "Data Scientist": {
+      "aliases": ["data scientist", "applied scientist"],
+      "skills": [
+        {"name": "Python", "demand_score": 95, "category": "core"},
+        {"name": "SQL", "demand_score": 90, "category": "core"},
+        {"name": "Statistics / experimentation (A/B testing)", "demand_score": 82, "category": "technique"},
+        {"name": "Pandas / NumPy", "demand_score": 85, "category": "core"},
+        {"name": "Scikit-learn", "demand_score": 78, "category": "framework"},
+        {"name": "Data visualization (Tableau/PowerBI/Matplotlib)", "demand_score": 70, "category": "tooling"},
+        {"name": "Deep learning basics", "demand_score": 62, "category": "technique"},
+        {"name": "Cloud data platforms", "demand_score": 60, "category": "infra"},
+        {"name": "Communication / stakeholder storytelling", "demand_score": 65, "category": "soft"}
+      ]
+    },
+    "Software Engineer (Backend)": {
+      "aliases": ["backend engineer", "backend developer", "software engineer"],
+      "skills": [
+        {"name": "Python / Java / Go", "demand_score": 92, "category": "core"},
+        {"name": "REST API design", "demand_score": 88, "category": "core"},
+        {"name": "SQL / relational databases", "demand_score": 85, "category": "core"},
+        {"name": "System design", "demand_score": 78, "category": "technique"},
+        {"name": "Docker / Kubernetes", "demand_score": 72, "category": "infra"},
+        {"name": "Cloud (AWS/Azure/GCP)", "demand_score": 75, "category": "infra"},
+        {"name": "CI/CD", "demand_score": 68, "category": "tooling"},
+        {"name": "Testing (unit/integration)", "demand_score": 70, "category": "technique"},
+        {"name": "Message queues (Kafka/RabbitMQ)", "demand_score": 55, "category": "infra"}
+      ]
+    },
+    "Full Stack / Web Developer": {
+      "aliases": ["full stack developer", "web developer", "frontend developer"],
+      "skills": [
+        {"name": "JavaScript / TypeScript", "demand_score": 92, "category": "core"},
+        {"name": "React", "demand_score": 88, "category": "framework"},
+        {"name": "Node.js", "demand_score": 78, "category": "framework"},
+        {"name": "REST / GraphQL APIs", "demand_score": 75, "category": "core"},
+        {"name": "SQL / NoSQL databases", "demand_score": 72, "category": "core"},
+        {"name": "CSS / responsive design", "demand_score": 68, "category": "core"},
+        {"name": "Git / version control", "demand_score": 85, "category": "tooling"},
+        {"name": "Cloud deployment (Vercel/Render/AWS)", "demand_score": 60, "category": "infra"},
+        {"name": "Testing (Jest/Cypress)", "demand_score": 55, "category": "technique"}
+      ]
+    },
+    "Data Analyst": {
+      "aliases": ["data analyst", "business analyst"],
+      "skills": [
+        {"name": "SQL", "demand_score": 90, "category": "core"},
+        {"name": "Excel / spreadsheets", "demand_score": 80, "category": "core"},
+        {"name": "Data visualization (Tableau/PowerBI)", "demand_score": 82, "category": "tooling"},
+        {"name": "Python (Pandas)", "demand_score": 65, "category": "core"},
+        {"name": "Statistics", "demand_score": 68, "category": "technique"},
+        {"name": "Business communication", "demand_score": 70, "category": "soft"},
+        {"name": "A/B testing", "demand_score": 55, "category": "technique"}
+      ]
+    },
+    "DevOps / Cloud Engineer": {
+      "aliases": ["devops engineer", "cloud engineer", "site reliability engineer", "sre"],
+      "skills": [
+        {"name": "Docker / Kubernetes", "demand_score": 92, "category": "core"},
+        {"name": "CI/CD pipelines", "demand_score": 88, "category": "core"},
+        {"name": "Cloud (AWS/Azure/GCP)", "demand_score": 90, "category": "core"},
+        {"name": "Infrastructure as Code (Terraform)", "demand_score": 78, "category": "tooling"},
+        {"name": "Linux administration", "demand_score": 75, "category": "core"},
+        {"name": "Monitoring / observability", "demand_score": 65, "category": "technique"},
+        {"name": "Scripting (Bash/Python)", "demand_score": 72, "category": "core"}
+      ]
+    },
+    "Computer Vision Engineer": {
+      "aliases": ["computer vision engineer", "cv engineer"],
+      "skills": [
+        {"name": "Python", "demand_score": 95, "category": "core"},
+        {"name": "PyTorch / TensorFlow", "demand_score": 88, "category": "core"},
+        {"name": "OpenCV", "demand_score": 80, "category": "framework"},
+        {"name": "Object detection (YOLO)", "demand_score": 70, "category": "technique"},
+        {"name": "Image segmentation", "demand_score": 62, "category": "technique"},
+        {"name": "Vision-language models", "demand_score": 68, "category": "technique"},
+        {"name": "Model deployment / ONNX", "demand_score": 55, "category": "tooling"},
+        {"name": "3D vision (NeRF/Gaussian Splatting)", "demand_score": 45, "category": "technique"}
+      ]
+    }
+  }
+}
