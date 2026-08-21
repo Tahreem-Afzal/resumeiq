@@ -2,7 +2,7 @@
 __pycache__/
 *.pyc
 uploads/
-data/
+data/*.db
 *.egg-info/
 .venv/
 venv/
