@@ -65,12 +65,21 @@ def chat_with_resume(user_message: str, resume_text: str, history: list, report:
 
     messages.append({"role": "user", "content": user_message})
 
-    response = client.chat.completions.create(
-        model=MODEL,
-        messages=messages,
-        temperature=0.5,
-        max_tokens=1200,
-    )
+    try:
+        response = client.chat.completions.create(
+            model=MODEL,
+            messages=messages,
+            temperature=0.5,
+            max_tokens=3000,
+            reasoning_effort="low",
+        )
+    except TypeError:
+        response = client.chat.completions.create(
+            model=MODEL,
+            messages=messages,
+            temperature=0.5,
+            max_tokens=3000,
+        )
 
     reply = response.choices[0].message.content.strip()
     updated_history = history + [{"user": user_message, "assistant": reply}]
