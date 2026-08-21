@@ -118,7 +118,7 @@ Return this exact JSON structure:
             model=MODEL,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.3,
-            max_tokens=8000,
+            max_tokens=3000,
             reasoning_effort="low",
         )
     except TypeError:
@@ -126,7 +126,7 @@ Return this exact JSON structure:
             model=MODEL,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.3,
-            max_tokens=8000,
+            max_tokens=3000,
         )
 
     raw = response.choices[0].message.content.strip()
