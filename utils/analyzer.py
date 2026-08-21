@@ -108,12 +108,26 @@ Return this exact JSON structure:
   "summary_feedback": "<2-3 sentence overall verdict on this resume>"
 }}"""
 
-    response = client.chat.completions.create(
-        model=MODEL,
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.3,
-        max_tokens=3000,
-    )
+    # openai/gpt-oss-20b is a reasoning model: it spends hidden "thinking"
+    # tokens before the real answer, and those count against max_tokens.
+    # Without reasoning_effort="low" + a generous budget, this large
+    # analysis prompt can burn its whole budget on reasoning and return
+    # empty content.
+    try:
+        response = client.chat.completions.create(
+            model=MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.3,
+            max_tokens=8000,
+            reasoning_effort="low",
+        )
+    except TypeError:
+        response = client.chat.completions.create(
+            model=MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.3,
+            max_tokens=8000,
+        )
 
     raw = response.choices[0].message.content.strip()
 
